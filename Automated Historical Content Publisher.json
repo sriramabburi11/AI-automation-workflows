@@ -1,0 +1,131 @@
+{
+  "name": "Automated Historical Content Publisher",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -336,
+        0
+      ],
+      "id": "11979c68-bf48-46ed-b483-16c844ded7d3",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an \"On This Day in History\" social media assistant for LinkedIn. Your task is to perform the following steps based on today's date: {{ $now.toFormat('MMMM d') }}.\n\nFind a Fact: Find one interesting historical event that occurred on this date.\n\nWrite a LinkedIn Post: Write a professional and informative LinkedIn post about this event. The post should:\n\nStart with a strong hook like \"On this day in [Year]...\"\nClearly explain the event and its broader impact.\nEnd with a thought-provoking question to encourage discussion.\nUse the hashtags #OnThisDay, #History, and #TodayInHistory.\nMention the present date in the post as part of the context.\n\nDirectly output only the final LinkedIn post content. Do not include any other text or explanations.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -128,
+        0
+      ],
+      "id": "a018d17f-ccb6-47e5-a1cd-d1556633b0ea",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        208
+      ],
+      "id": "0084ba4f-e6ab-47e0-881b-3d71721775bf",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mXniknACIZYP3ZeX",
+          "name": "Google Gemini(PaLM) Api account 9662"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "person": "mmNB8k32dm",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "84b3f9c4-1ad1-4cfc-a3fe-79563bfd8852",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "cs84OpZ4tvHmBAZ2",
+          "name": "LinkedIn account 2813"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "c25cd583-75a7-41da-ac6b-fbc34c5ec57c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "969257b09ad2942bbaff2e2288304f4969030574d109cdeca05bf11f630884df"
+  },
+  "id": "7bZLDIBPxmEAh6fV",
+  "tags": []
+}
