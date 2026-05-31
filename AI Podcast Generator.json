@@ -1,0 +1,179 @@
+{
+  "name": "AI Podcast Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -336,
+        224
+      ],
+      "id": "0edd95ff-8f31-49a4-8f05-a57970317e8b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mXniknACIZYP3ZeX",
+          "name": "Google Gemini(PaLM) Api account 9662"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -496,
+        16
+      ],
+      "id": "8410c302-2f33-4453-84bc-13988925ffd3",
+      "name": "When chat message received",
+      "webhookId": "a7446698-8be5-4518-8725-53633cd0528d"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a professional podcast script writer. Create engaging, informative podcast content based on the given topic:{{ $json.chatInput }} . Length should be 2 minute when spoken. Just give the content only without labelling"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -256,
+        16
+      ],
+      "id": "c50a3536-2fad-432d-9658-44cc0e94162f",
+      "name": "Podcast Generator"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.murf.ai/v1/speech/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "ap2_ca6790d8-2cea-49ab-9e88-441dbeb6e441"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "voiceId",
+              "value": "Terrell"
+            },
+            {
+              "name": "locale",
+              "value": "en-US"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        64,
+        16
+      ],
+      "id": "c82c03c2-91e4-45cf-a7c1-0a92dfa472a3",
+      "name": "Audio Generator"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.audioFile }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        272,
+        16
+      ],
+      "id": "6d4f1584-4a87-4dfc-a381-d33e89da660a",
+      "name": "Audio Download"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Podcast Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Podcast Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Podcast Generator": {
+      "main": [
+        [
+          {
+            "node": "Audio Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audio Generator": {
+      "main": [
+        [
+          {
+            "node": "Audio Download",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1,
+    "availableInMCP": false
+  },
+  "versionId": "b97a3abc-52ec-4883-b29f-03b0f433e391",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "969257b09ad2942bbaff2e2288304f4969030574d109cdeca05bf11f630884df"
+  },
+  "id": "jVsqWPGACRxb4lgv",
+  "tags": []
+}
